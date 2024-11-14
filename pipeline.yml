@@ -1,42 +1,63 @@
 trigger:
-- main
+  - main
 
 pr:
-- "*"
+  - "*"
 
 variables:
   - group: azure_env
 
-jobs:
-- job: buildAndDeploy
-  displayName: 'Build & Deploy'
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - checkout: self
+stages:
+  - stage: BuildProject
+    jobs: 
+      - job: buildProject
+        displayName: 'Build project'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
 
-  - task: UseDotNet@2
-    inputs:
-      packageType: 'sdk'
-      version: '7.x'
-      installationPath: $(Agent.ToolsDirectory)/dotnet
+          - task: UseDotNet@2
+            inputs:
+              packageType: 'sdk'
+              version: '7.x'
+              installationPath: $(Agent.ToolsDirectory)/dotnet
 
-  - script: |
-      dotnet build --configuration Release
-    displayName: 'Build .NET Project'
+          - script: |
+              dotnet build --configuration Release
+            displayName: 'Build .NET Project'
 
-  - script: |
-      sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-      sudo chmod +x /usr/local/bin/docker-compose
-      docker-compose --version
-    displayName: 'Install Docker Compose'
+  - stage: DockerCompose
+    jobs: 
+      - job: dockerCompose
+        displayName: 'Docker Compose'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: DockerCompose@1
 
-  - script: |
-      docker-compose -f docker-compose.yml build
-    displayName: 'Build Docker Image using Docker Compose'
+          - script: |
+              sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+              docker-compose --version
+            displayName: 'Install Docker Compose'
 
-  - script: |
-      echo $(servicePrincipalKey) | az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
-      
-      az webapp config container set --name $(appServiceName) --resource-group $(resourceGroup) --docker-custom-image-name $(dockerHubUsername)/$(dockerImageName):latest
-    displayName: 'Deploy Docker Container to Azure Web App'
+          - script: |
+              docker-compose -f docker-compose.yml build
+            displayName: 'Build Docker Image using Docker Compose'
+
+
+  - stage: DeployApp
+    jobs: 
+      - job: DeployAppService
+        displayName: 'Deploy'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: AzureCLI@0
+
+          - script: |
+              echo $(servicePrincipalKey) | az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
+              
+              az webapp config container set --name $(appServiceName) --resource-group $(resourceGroup) --docker-custom-image-name $(dockerHubUsername)/$(dockerImageName):latest
+            displayName: 'Deploy Docker Container to Azure Web App'
