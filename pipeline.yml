@@ -38,5 +38,7 @@ jobs:
 
   - script: |
       echo $(AZURE_CREDENTIALS) | az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
-      az webapp config container set --name $(AZURE_APP_NAME) --resource-group $(AZURE_RESOURCE_GROUP) --docker-custom-image-name $(DOCKER_REGISTRY)/$(AZURE_APP_NAME):latest
+      
+      az webapp config set --name $(AZURE_APP_NAME) --resource-group $(AZURE_RESOURCE_GROUP) --net-framework-version "7.0"
+      az webapp up --name $(AZURE_APP_NAME) --resource-group $(AZURE_RESOURCE_GROUP) --sku F1
     displayName: 'Deploy to Azure App Service'
