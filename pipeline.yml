@@ -38,5 +38,5 @@ jobs:
   - script: |
       echo $(servicePrincipalKey) | az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
       
-      az webapp create --resource-group $(resourceGroup) --plan 'AppServiceSampleAPI' --name $(appServiceName) --deployment-container-image-name $(dockerHubUsername)/$(dockerImageName):latest
+      az webapp config container set --name $(appServiceName) --resource-group $(resourceGroup) --docker-custom-image-name $(dockerHubUsername)/$(dockerImageName):latest
     displayName: 'Deploy Docker Container to Azure Web App'
