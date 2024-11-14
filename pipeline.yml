@@ -9,25 +9,16 @@ variables:
 
 jobs:
 - job: buildAndDeploy
-  displayName: 'Build & Deploy'
+  displayName: 'Build, Push & Deploy'
   pool:
     vmImage: 'ubuntu-latest'
-
   steps:
   - checkout: self
-
-  - script: |
-      export AZURE_APP_NAME=$(appServiceName)
-      export AZURE_RESOURCE_GROUP=$(resourceGroup)
-      export AZURE_SUBSCRIPTION_ID=$(subscriptionId)
-      export AZURE_CREDENTIALS=$(azureServicePrincipal)
-      export AZURE_TENANT_ID=$(tenantId)
-    displayName: 'Set Environment Variables'
 
   - task: UseDotNet@2
     inputs:
       packageType: 'sdk'
-      version: '7.x' 
+      version: '7.x'
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
   - script: |
@@ -35,11 +26,25 @@ jobs:
     displayName: 'Build .NET Project'
 
   - script: |
+      # Встановлюємо Docker Compose (якщо не встановлено)
+      sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      sudo chmod +x /usr/local/bin/docker-compose
+      docker-compose --version
+    displayName: 'Install Docker Compose'
+
+  - script: |
       docker-compose -f docker-compose.yml build
     displayName: 'Build Docker Image using Docker Compose'
 
   - script: |
-      echo $(AZURE_CREDENTIALS) | az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
+      echo $(DOCKER_PASSWORD) | docker login $(DOCKER_REGISTRY) -u $(DOCKER_USERNAME) --password-stdin
+    displayName: 'Docker Login'
 
-      az webapp config container set --name $(AZURE_APP_NAME) --resource-group $(AZURE_RESOURCE_GROUP) --docker-custom-image-name $(AZURE_APP_NAME):latest
+  - script: |
+      docker-compose -f docker-compose.yml push
+    displayName: 'Push Docker Image'
+
+  - script: |
+      echo $(AZURE_CREDENTIALS) | az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
+      az webapp config container set --name $(AZURE_APP_NAME) --resource-group $(AZURE_RESOURCE_GROUP) --docker-custom-image-name $(DOCKER_REGISTRY)/$(AZURE_APP_NAME):latest
     displayName: 'Deploy to Azure App Service'
