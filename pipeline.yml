@@ -9,7 +9,7 @@ variables:
 
 jobs:
 - job: buildAndDeploy
-  displayName: 'Build, Push & Deploy'
+  displayName: 'Build & Deploy'
   pool:
     vmImage: 'ubuntu-latest'
   steps:

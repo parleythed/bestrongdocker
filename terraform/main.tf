@@ -38,7 +38,7 @@ resource "azurerm_app_service" "app" {
   app_service_plan_id = azurerm_app_service_plan.app_service_plan.id
 
   site_config {
-    linux_fx_version = "DOCKER|aspnetcore-webapi-sample:latest" 
+    linux_fx_version = "DOCKER|katerynabakhmat/aspnetcore-webapi-sample:latest"
   }
 
   app_settings = {
