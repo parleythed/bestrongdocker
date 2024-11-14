@@ -36,8 +36,9 @@ jobs:
     displayName: 'Build Docker Image using Docker Compose'
 
   - script: |
-      echo $(AZURE_CREDENTIALS) | az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
+      echo $(servicePrincipalKey) | az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
       
-      az webapp config set --name $(AZURE_APP_NAME) --resource-group $(AZURE_RESOURCE_GROUP) --net-framework-version "7.0"
-      az webapp up --name $(AZURE_APP_NAME) --resource-group $(AZURE_RESOURCE_GROUP) --sku F1
+      az webapp config set --name $(appServiceName) --resource-group $(resourceGroup) --net-framework-version "7.0"
+      
+      az webapp up --name $(appServiceName) --resource-group $(resourceGroup) --sku F1
     displayName: 'Deploy to Azure App Service'
