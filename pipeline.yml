@@ -37,14 +37,6 @@ jobs:
     displayName: 'Build Docker Image using Docker Compose'
 
   - script: |
-      echo $(DOCKER_PASSWORD) | docker login $(DOCKER_REGISTRY) -u $(DOCKER_USERNAME) --password-stdin
-    displayName: 'Docker Login'
-
-  - script: |
-      docker-compose -f docker-compose.yml push
-    displayName: 'Push Docker Image'
-
-  - script: |
       echo $(AZURE_CREDENTIALS) | az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
       az webapp config container set --name $(AZURE_APP_NAME) --resource-group $(AZURE_RESOURCE_GROUP) --docker-custom-image-name $(DOCKER_REGISTRY)/$(AZURE_APP_NAME):latest
     displayName: 'Deploy to Azure App Service'
