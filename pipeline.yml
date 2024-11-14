@@ -36,14 +36,7 @@ jobs:
     displayName: 'Build Docker Image using Docker Compose'
 
   - script: |
-      export ARM_CLIENT_ID=$(servicePrincipalId)
-      export ARM_CLIENT_SECRET=$(servicePrincipalKey)
-      export ARM_SUBSCRIPTION_ID=$(subscriptionId)
-      export ARM_TENANT_ID=$(tenantId)
-
       echo $(servicePrincipalKey) | az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
       
-      az webapp create --name $(appServiceName) --resource-group $(resourceGroup) --plan $(appServicePlan) --runtime "DOTNETCORE|7.0" --os-type "Linux"
-      
-      az webapp deployment source config-zip --resource-group $(resourceGroup) --name $(appServiceName) --src /home/vsts/work/1/s/<path-to-your-artifact>.zip
-    displayName: 'Deploy to Azure Linux App Service'
+      az webapp create --resource-group $(resourceGroup) --plan $(appServicePlan) --name $(appServiceName) --deployment-container-image-name $(dockerHubUsername)/$(dockerImageName):latest
+    displayName: 'Deploy Docker Container to Azure Web App'
