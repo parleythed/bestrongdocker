@@ -17,13 +17,10 @@ jobs:
   - checkout: self
 
   - script: |
-      # Встановлення змінних середовища для Azure
       export AZURE_APP_NAME=$(appServiceName)
       export AZURE_RESOURCE_GROUP=$(resourceGroup)
       export AZURE_SUBSCRIPTION_ID=$(subscriptionId)
       export AZURE_CREDENTIALS=$(azureServicePrincipal)
-      export AZURE_RESOURCE_GROUP=$(resourceGroup)
-      export AZURE_SUBSCRIPTION_ID=$(subscriptionId)
       export AZURE_TENANT_ID=$(tenantId)
     displayName: 'Set Environment Variables'
 
