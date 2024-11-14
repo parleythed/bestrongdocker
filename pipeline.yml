@@ -43,9 +43,8 @@ stages:
             displayName: 'Install Docker Compose'
 
           - script: |
-              docker-compose -p parleythed_bestrongdocker -f docker-compose.yml build
+              docker-compose -p parleythed_bestrong_docker -f docker-compose.yml build
             displayName: 'Build Docker Image using Docker Compose'
-
 
   - stage: DeployApp
     jobs: 
