@@ -39,16 +39,20 @@ stages:
           vmImage: 'ubuntu-latest'
         steps:
         - task: AzureCLI@2
-        - script: |
-            az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
+          inputs:
+            azureSubscription: AppService
+            scriptType: bash 
+            scriptLocation: inlineScript
+            inlineScript: |
+                az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
               
-            az webapp config container set \
-                --name $(appServiceName) \
-                --resource-group $(resourceGroup) \
-                --docker-custom-image-name $(acrName).azurecr.io/aspnetcore-webapi-sample:latest \
-                --registry-login-server $(acrName).azurecr.io \
-                --registry-username $(registryUsername) \
-                --registry-password $(registryPassword)
+                az webapp config container set \
+                    --name $(appServiceName) \
+                    --resource-group $(resourceGroup) \
+                    --docker-custom-image-name $(acrName).azurecr.io/aspnetcore-webapi-sample:latest \
+                    --registry-login-server $(acrName).azurecr.io \
+                    --registry-username $(registryUsername) \
+                    --registry-password $(registryPassword)
           displayName: 'Deploy Docker Container to Azure Web App'
 
 
