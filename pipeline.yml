@@ -8,51 +8,45 @@ variables:
   - group: azure_env
 
 stages:
-  - stage: BuildProject
+  - stage: BuildPush
     jobs: 
       - job: buildProject
-        displayName: 'Build project'
+        displayName: 'Build and Push project'
         pool:
           vmImage: 'ubuntu-latest'
         steps:
           - checkout: self
-
-          - task: UseDotNet@2
-            inputs:
-              packageType: 'sdk'
-              version: '7.x'
-              installationPath: $(Agent.ToolsDirectory)/dotnet
-
+            displayName: "Checkout the repository"
+          
           - script: |
-              dotnet build --configuration Release
-            displayName: 'Build .NET Project'
-
-  - stage: DockerCompose
-    jobs: 
-      - job: dockerCompose
-        displayName: 'Docker Compose'
+              az acr login --name $(acrName)
+            displayName: "Login to Azure Container Registry (ACR)"
+          
+          - script: |
+              docker build -t $(acrName).azurecr.io/aspnetcore-webapi-sample:latest .
+            displayName: "Build Docker Image"
+          
+          - script: |
+              docker push $(acrName).azurecr.io/aspnetcore-webapi-sample
+            displayName: "Push Docker Image to ACR"
+          
+  - stage: Deploy
+    jobs:
+      - job: deployProject
+        displayName: "Deploy project"
         pool:
           vmImage: 'ubuntu-latest'
         steps:
-          - script: |
-              sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              sudo chmod +x /usr/local/bin/docker-compose
-              docker-compose --version
-            displayName: 'Install Docker Compose'
-
-          - script: |
-              docker-compose -p docker-compose.yml build
-            displayName: 'Build Docker Image using Docker Compose'
-
-  - stage: DeployApp
-    jobs: 
-      - job: DeployAppService
-        displayName: 'Deploy'
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - script: |
-              echo $(servicePrincipalKey) | az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
+        - task: AzureCLI@0
+        - script: |
+            az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
               
-              az webapp config container set --name $(appServiceName) --resource-group $(resourceGroup) --docker-custom-image-name $(dockerHubUsername)/$(dockerImageName):latest
-            displayName: 'Deploy Docker Container to Azure Web App'
+            az webapp config container set \
+              --name $(appServiceName) \
+              --resource-group $(resourceGroup) \
+              --docker-custom-image-name $(acrName).azurecr.io/aspnetcore-webapi-sample:latest \
+              --registry-login-server $(acrName).azurecr.io
+          displayName: 'Deploy Docker Container to Azure Web App'
+
+
+
