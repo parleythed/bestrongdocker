@@ -38,7 +38,7 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
-        - task: AzureCLI@0
+        - task: AzureCLI@2
         - script: |
             az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId)
               
