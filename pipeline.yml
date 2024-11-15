@@ -19,6 +19,7 @@ stages:
             displayName: "Checkout the repository"
           
           - script: |
+              az login --service-principal --username $(servicePrincipalId) --password $(servicePrincipalKey) --tenant $(tenantId) 
               az acr login --name $(acrName)
             displayName: "Login to Azure Container Registry (ACR)"
           
