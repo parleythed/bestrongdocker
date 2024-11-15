@@ -116,13 +116,21 @@ resource "azurerm_app_service" "app" {
 ```
 
 ### App Service for this task
-![App Service!](./screenshot/docker_compose_up.png "App Service")
+![App Service!](./screenshot/app_service.png "App Service")
+
+### Azure Container Registry
+![Azure Container Registry!](./screenshot/creating_arc.png "Azure Container Registry")
 
 
 ## Pipeline 
 ### Pipeline code [here](./pipeline.yml)
 ### Result of running pipeline
-![Result of running pipeline](./screenshot/pipeline_running_result.png " Result of running pipeline")
+![Result of running pipeline](./screenshot/pipeline_running_result.png "Result of running pipeline")
 
 ### Checking app in App Service
 ![Checking app in App Service!](./screenshot/app_in_azure.png "App Service")
+
+
+### Optional
+### I checked if images pushed in ACR and after each build creates a new image layer with its own hash, confirming that the image is updated after each pipeline run. 
+![Images updates!](./screenshot/images_updates.png "Images updates")
