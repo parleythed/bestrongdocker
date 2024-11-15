@@ -29,6 +29,12 @@ namespace SampleWebApiAspNetCore.Controllers.v1
             _mapper = mapper;
             _linkService = linkService;
         }
+         /* Adding this entrypoint for checking if images updates in  */
+        [HttpGet("hello-world", Name = nameof(HelloWorld))]
+        public ActionResult HelloWorld()
+        {
+            return Ok("Hello, World!");
+        }
 
         [HttpGet(Name = nameof(GetAllFoods))]
         public ActionResult GetAllFoods(ApiVersion version, [FromQuery] QueryParameters queryParameters)
