@@ -50,9 +50,9 @@ stages:
                     --name $(appServiceName) \
                     --resource-group $(resourceGroup) \
                     --docker-custom-image-name $(acrName).azurecr.io/aspnetcore-webapi-sample:latest \
-                    --registry-login-server $(acrName).azurecr.io \
-                    --registry-username $(registryUsername) \
-                    --registry-password $(registryPassword)
+                    --docker-registry-server-url https://$(acrName).azurecr.io \
+                    --docker-registry-server-user $(registryUsername) \
+                    --docker-registry-server-password $(registryPassword)
           displayName: 'Deploy Docker Container to Azure Web App'
 
 
