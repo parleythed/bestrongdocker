@@ -13,7 +13,7 @@ namespace SampleWebApiAspNetCore.Controllers.v1
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{version:apiVersion}/foods-test")]
     public class FoodsController : ControllerBase
     {
         private readonly IFoodRepository _foodRepository;
